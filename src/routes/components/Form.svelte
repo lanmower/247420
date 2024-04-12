@@ -48,6 +48,7 @@
 	let compiledschema = ajv.compile(ajvschema)
 	export let values = {}
 	export let errors = {}
+	export let callback = console.log
 	const handleSubmit = ()=>{
 		for(let field of schema) {
 			field.error = null
@@ -68,7 +69,7 @@
 				console.log({error}, {out})
 			}
 		} else {
-						
+			callback(values)
 		}
 	}
 </script>

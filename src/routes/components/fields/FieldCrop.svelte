@@ -39,7 +39,9 @@
   }
 
   async function cropImage() {
-      value = await getCroppedImg(image, pixelCrop);
+      console.log(image, pixelCrop, await getCroppedImg(image, pixelCrop))
+      value = await (await fetch(await getCroppedImg(image, pixelCrop))).blob();
+      console.log({value})
       dispatch('change', { name, value: croppedImage }); // Dispatch cropped image
   }
 
@@ -53,7 +55,7 @@
   <div class="grid w-full items-center gap-1.5 mb-8">
       <Label for={id}>{title||name}</Label>
       {#if value}
-        <img src={db.getUrl(values, value)} width="100" height="100"/>
+        <img src={value} width="100" height="100"/>
       {/if}
       {#if image}
       <div style="position: relative; width: 100%; height: 300px;">

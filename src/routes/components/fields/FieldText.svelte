@@ -5,14 +5,15 @@
 
 	export let name = ''
 	export let id = ''
-	export let system = ''
-	export let type, presentable, unique, options, inputClass
+	export let placeholder
+	export let inputClass 
 	export let value = ''
-	let isVisible = true // Assuming it's always visible
+	export let isVisible = true // Assuming it's always visible
 	export let error = ''
-	let touched = false
-	let required = true // Assuming it's always required
-	let props = {}
+	export let touched = false
+	export let required = true // Assuming it's always required
+	export let props = {}
+
 	const dispatch = createEventDispatcher()
 
 	function handleChange(event) {
@@ -22,13 +23,13 @@
 </script>
 
 {#if isVisible}
-	<div class="grid w-full items-center gap-1.5 mb-8">
+	<div class="grid w-full items-center gap-1.5 mb-4">
 		<Label for={id}>{name}</Label>
 		<Input
 			type="text"
 			{id}
-			placeholder={name}
-			class={"text-black "+inputClass}
+			placeholder={placeholder||name}
+			class={"dark:bg-black dark:text-white "+inputClass}
 			bind:value
 			on:input={handleChange}
 			aria-invalid={error}

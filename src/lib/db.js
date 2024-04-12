@@ -29,14 +29,14 @@ const getPosts = () => {
     }
     return posts;
 }
-let members = writable();
-let membersDone = false;
-const getMembers = () => {
-    if (!membersDone) {
-        membersDone = true;
-        pb.collection('members').getList(1, 50, { expand: 'posts' }).then((items) => {
+let users = writable();
+let usersDone = false;
+const getUsers = () => {
+    if (!usersDone) {
+        usersDone = true;
+        pb.collection('users').getList(1, 50, { expand: 'posts' }).then((items) => {
             for (let loaded of items.items) {
-                loaded.avatarUrl = pb.files.getUrl(loaded, loaded.pfp, { 'thumb': '250x330' });
+                loaded.avatarUrl = pb.files.getUrl(loaded, loaded.pfp, { 'thumb': '250x330' })||'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg';
 
 
                 if (loaded.expand && loaded.expand.posts) {
@@ -54,10 +54,10 @@ const getMembers = () => {
                     loaded.expand = {posts:[]}
                 }
             }
-            members.set(items.items)
+            users.set(items.items)
         })
     }
-    return members
+    return users
 }
 let collections = writable();
 let collectionsDone = false;
@@ -70,7 +70,7 @@ const getCollections = () => {
             }
         )
     }
-    return members
+    return users
 }
 
 let loggedin = writable();
@@ -106,9 +106,10 @@ const login=async () => {
 
                 }
                 console.log([account + '@247420.xyz', hexString])
-                const authData = await pb
+                let authData = await pb
                     .collection('users')
                     .authWithPassword(account + '@247420.xyz', hexString);
+                console.log(authData)
                 loggedin.set(pb.authStore.model)
                 } catch (e) {
                 console.error(e);
@@ -133,4 +134,17 @@ const getUrl=(record, value, options)=>{
     return pb.files.getUrl(record, value, options);
 }
 
-export default { getMembers,  getPosts, getCollections, login, logout, loggedin, getName, getUrl }
+const saveUser=async (values)=>{
+    try {
+        console.log(`update(${values.id}`, values);
+        let loaded = await pb.collection('users').getOne(values.id)
+        Object.assign(loaded, values)
+        console.log({values})
+        await pb.collection('users').update(values.id, values)
+    } catch(e) {
+        console.log('error updating, creating')
+        await pb.collection('users').create(values)
+    }
+}
+
+export default { getUsers,  getPosts, getCollections, login, logout, loggedin, getName, getUrl, saveUser }

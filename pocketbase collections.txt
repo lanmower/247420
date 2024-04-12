@@ -61,7 +61,7 @@
     },
     {
         "id": "vjb7w8wdzil5t6b",
-        "name": "members",
+        "name": "users",
         "type": "base",
         "system": false,
         "schema": [
@@ -291,7 +291,7 @@
             }
         ],
         "indexes": [
-            "CREATE UNIQUE INDEX `idx_rf9Wnmq` ON `members` (`ERC20`)"
+            "CREATE UNIQUE INDEX `idx_rf9Wnmq` ON `users` (`ERC20`)"
         ],
         "listRule": "",
         "viewRule": "",
@@ -337,7 +337,7 @@
             {
                 "system": false,
                 "id": "ol60dlcp",
-                "name": "member",
+                "name": "user",
                 "type": "relation",
                 "required": false,
                 "presentable": false,

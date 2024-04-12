@@ -1,10 +1,10 @@
 import db from '$lib/db.js';
-export const prerender = false;
+//export const prerender = false;
 
 export async function load(ctx) {
-    const membersSub = await db.getMembers();
-    const member = await new Promise(res=>{
-        membersSub.subscribe((a)=>{
+    const usersSub = await db.getUsers();
+    const user = await new Promise(res=>{
+        usersSub.subscribe((a)=>{
             if(a) res(a.filter((item) => {
                 const nick = db.getName()
                 return item.ERC20.toLowerCase() == nick
@@ -12,5 +12,5 @@ export async function load(ctx) {
         })
     })
     
-    return {member, name:db.getName()}
+    return {user, name:db.getName(), saveUser:db.saveUser}
 }

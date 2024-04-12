@@ -2,7 +2,7 @@
     import SvelteMarkdown  from "svelte-markdown"
     export let post;
     export let data;
-	$: ({ members } = data)
+	$: ({ users } = data)
     </script>
 <div class="mb-5 md:col-span-10 space-y-5">
     <div class="infinite-scroll-component__outerdiv">
@@ -22,7 +22,7 @@
                                         <span aria-expanded="false">
                                             <div class="flex items-center space-x-3">
                                                 <img
-                                                    src={members.filter((a) => a.id == post.member)[0].avatarUrl}
+                                                    src={users.filter((a) => a.id == post.user)[0]?.avatarUrl}
                                                     loading="lazy"
                                                     class="h-10 w-10 rounded-full border bg-gray-200 dark:border-gray-700"
                                                     height="40"
@@ -32,13 +32,13 @@
                                                 <div>
                                                     <div class="flex max-w-sm items-center truncate">
                                                         <div class="text-md">
-                                                            {members.filter((a) => a.id == post.member)[0].pseudonym}
+                                                            {users.filter((a) => a.id == post.user)[0].pseudonym}
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <span
                                                             class="from-brand-600 dark:from-brand-400 bg-gradient-to-r to-pink-600 bg-clip-text text-transparent dark:to-pink-400 text-sm"
-                                                            >@{members.filter((a) => a.id == post.member)[0].lens}</span
+                                                            >@{users.filter((a) => a.id == post.user)[0].lens}</span
                                                         >
                                                         <span class="lt-text-gray-500">
                                                             <span class="mx-1.5">·</span>

@@ -4,10 +4,10 @@
 	import Sidebar from './components/Sidebar.svelte'
 	import Countdown from './components/Countdown.svelte'
 	export let data;
-	$: ({ members } = data)
+	$: ({ users } = data)
 </script>
 <ModeWatcher />
-<Sidebar members={members} data={data}/>
+<Sidebar users={users} data={data}/>
 <div class="flex-auto ml-64 ">
 	<Countdown></Countdown>
 	<slot />

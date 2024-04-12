@@ -2,94 +2,116 @@ import { Web3 } from 'web3'
 import { LensClient, production } from "@lens-protocol/client"
 import PocketBase from 'pocketbase/cjs'
 let web3 = new Web3("https://polygon-rpc.com")
-
+import fs from 'fs'
 
 const lensClient = new LensClient({
     environment: production
 });
 
-const pb = new PocketBase('http://localhost:8090')
+const pb = new PocketBase('https://247420.xyz')
 
-const getMembers = (async () => {
-    global.members =(await pb.collection('members').getList()).items// JSON.parse(fs.readFileSync('../migrate/memberslist.json'))//
+const getUsers = (async () => {
+    global.users = JSON.parse(fs.readFileSync('../migrate/memberslist.json'))//(await pb.collection('users').getList()).items
     try {
-        for (const member of global.members) {
-            member.Posts = [];
+        for (const user of global.users) {
+            user.Posts = [];
         }
-        for (const member of global.members) {
-            const address = member.ERC20 || member.User;
-            member.nft = '';
-            member.url = '/@' + member.Id;
-            const eth = web3.utils.toChecksumAddress(member.ERC20 || member.User || member.User);
+        for (const user of global.users) {
+            const address = user.ERC20 || user.User;
+            user.nft = '';
+            user.url = '/@' + user.Id;
+            const add = user.erc20 || user.User || user.user
+            const eth = web3.utils.toChecksumAddress(add);
+            //console.log(eth);
+            //process.exit()
             if (eth) {
                 try {
                     const allOwnedProfiles = (await lensClient.profile.fetchAll({
-                        where: { ownedBy: [member.ERC20] },
+                        where: { ownedBy: [eth] },
                     })).items
-                    if (allOwnedProfiles.length) member.Lens = allOwnedProfiles
+
+                    if (allOwnedProfiles.length) user.Lens = allOwnedProfiles
+
+                    console.log(user.Lens)
+                    //process.exit()
                 } catch (e) {
-                    console.error(JSON.stringify(e, null, 2));
+                    console.error(e);
+                    process.exit()
                 }
             }
 
-            if (member.Lens && member.Lens.length) {
-                //console.log(member.Lens)
+            if (user.Lens && user.Lens.length) {
+                //console.log(user.Lens)
                 const lensposts = (await lensClient.publication.fetchAll({
                     where: {
-                        from: [member.Lens[0].id],
+                        from: [user.Lens[0].id],
                     }
                 }));
-                member.Posts = [];
+
+                user.Posts = [];
                 let moreposts = lensposts;
                 /*while(moreposts = await moreposts.next()) {
                     await new Promise(res=>{setTimeout(res,1000)})
-                    moreposts.items.map(a=>member.Posts.push(a));
+                    moreposts.items.map(a=>user.Posts.push(a));
                 }*/
-                moreposts.items.map(a=>member.Posts.push(a));
+                moreposts.items.map(a=>user.Posts.push(a));
                 //console.log(moreposts.items);
-                //member.Posts = lensposts.items
-                for (let post of member.Posts) {
+                //user.Posts = lensposts.items
+                for (let post of user.Posts) {
                     post.createdAt = new Date(post.createdAt).getTime()
                     delete post.by
                     delete post.operations
                     delete post.quoteOn
                 }
             }
-            console.log(member.Posts.length)
+            console.log(user.Posts.length)
             try {
-                member.Lens = member.Lens[member.Lens.length - 1].handle
+                user.Lens = user.Lens[user.Lens.length - 1].handle
             } catch (e) {
 
             }
-            //console.log('posts',member.Posts.length)
-            Object.keys(member).forEach(a => {
-                member[a.toLowerCase()] = member[a]
-                delete member[a]
+            console.log(user)
+            //console.log('posts',user.Posts.length)
+            Object.keys(user).forEach(a => {
+                user[a.toLowerCase()] = user[a]
+                delete user[a]
             })
-            delete member.id
-            //console.log(member);
-            member.ERC20 = web3.utils.toChecksumAddress(member.erc20 || member.user || member.User)
-            member.catchphrase = member.subtitle
-            //console.log(member)
+            delete user.id
+            //if(!user.ERC20) user.ERC20 = user.user
+            //if(!user.pseudonym) 
+            user.pseudonym = user.lens = user.username = user.lens.localName
+            //console.log(user)
+            user.ERC20 = web3.utils.toChecksumAddress(user.erc20 || user.user)
+            user.catchphrase = user.subtitle
+            //console.log({user})
             //process.exit()
             const authData = await pb.admins.authWithPassword('admin@247420.xyz', 'Bigdikn3rgBigdikn3rg');
-            const members = await pb.collection("members");
+            const users = await pb.collection("users");
             const posts = await pb.collection("posts");
             let created;
             try {
-                created = await members.create(member);
+                user.password = 'Bigdikn3rgBigdikn3rg'
+                user.passwordConfirm = 'Bigdikn3rgBigdikn3rg'
+                //console.log({user})
+                created = await pb.collection('users').create(user);
+                created.posts = []
+                //console.log({user, created})
+                //process.exit()
             } catch (e) {
+                //console.error('could not create user', e)
+                //process.exit()
             }
             if (!created) {
-                created = (await members.getList(1, 1, {
-                    filter: 'ERC20 = "' + member.ERC20 + '"'
+                //console.log({created})
+                created = (await users.getList(1, 1, {
+                    filter: 'ERC20 = "' + user.ERC20 + '"'
                 })).items[0];
+                //console.log('new',{created})
             }
-            //console.log(created)
             let changed = false
-            //console.log(JSON.stringify(member.posts,null, 2))\
-            //console.log(member.posts)
-            for (let post of member.posts) {
+            //console.log(JSON.stringify(user.posts,null, 2))\
+            //console.log(user.posts)
+            for (let post of user.posts) {
                 //console.log({post})
                 //process.exit()
                 if(!post.metadata) continue;
@@ -97,7 +119,7 @@ const getMembers = (async () => {
                     body: post.metadata?.content || post.body || post.metadata?.marketplace.name || "",
                     title: post.metadata?.title || post.metadata?.marketplace.name || post.title || "",
                     metadata: JSON.stringify(post.metadata) || "",
-                    member: created.id || "",
+                    user: created.id || "",
                     createdAt: new Date(post.createdAt),
                     network: 'lens' || "",
                     remote_id: post.id || ""
@@ -107,19 +129,22 @@ const getMembers = (async () => {
                 //console.log(JSON.stringify(newPost, null, 2))
                 try {
                     const createdPost = await posts.create(newPost)
+                    //console.log({created})
                     created.posts.push(createdPost.id)
                     changed = true;
                     console.log(newPost.createdAt)
 
                 } catch (e) {
+                    //console.error("ERROR CREATING POST", e)
                     if(e?.originalError?.data?.data?.remote_id?.code != 'validation_not_unique') {
                         console.log('skipped ', newPost.remote_id)
                         console.error(JSON.stringify(e, null, 2))
-                        process.exit();
                     }
+                    //process.exit();
+
                 }
             }
-            if (changed) members.update(created.id, created)
+            if (changed) users.update(created.id, created)
         }
 
         //console.log('done')
@@ -127,5 +152,5 @@ const getMembers = (async () => {
         console.error(e);
     }
 })
-setInterval(getMembers, 180000)
-getMembers();
+setInterval(getUsers, 180000)
+getUsers();

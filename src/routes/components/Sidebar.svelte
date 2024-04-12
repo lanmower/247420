@@ -5,12 +5,11 @@
 	import Moon from 'svelte-radix/Moon.svelte';
 
 	import { toggleMode } from 'mode-watcher';
-	export let members;
+	export let users;
 
-	export let data
-	let loggedin
-	data.loggedin.subscribe(a=>loggedin=a)
-
+	export let data;
+	let loggedin;
+	data.loggedin.subscribe((a) => (loggedin = a));
 </script>
 
 <div class="pb-12 lg:block flex-1 w-64 absolute dark:bg-black dark:text-white">
@@ -20,8 +19,11 @@
 				<img class=" transition-all rounded-md m-1 hover:scale-105" src="/logo.gif" alt="" />
 			</a>
 			<div class="space-y-1">
-				{#if loggedin} 
-					<Button class="inline-flex items-center rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow-sm hover:bg-secondary/80 h-9 px-4 py-2 w-full justify-start" on:click={data.logout}>Sign out</Button>
+				{#if loggedin}
+					<Button
+						class="inline-flex items-center rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow-sm hover:bg-secondary/80 h-9 px-4 py-2 w-full justify-start"
+						on:click={data.logout}>Sign out</Button
+					>
 				{/if}
 				{#if !loggedin}
 					<button
@@ -44,8 +46,12 @@
 						Sign in</button
 					>
 				{/if}
-				{#if loggedin} 
-					<a href="/edit" class="inline-flex items-center rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow-sm hover:bg-secondary/80 h-9 px-4 py-2 w-full justify-start">Profile</a>
+				{#if loggedin}
+					<a
+						href="/edit"
+						class="inline-flex items-center rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 shadow-sm hover:bg-secondary/80 h-9 px-4 py-2 w-full justify-start"
+						>Profile</a
+					>
 				{/if}
 				<Button
 					on:click={toggleMode}
@@ -115,11 +121,11 @@
 				-->
 			</div>
 		</div>
-		{#if members}
+		{#if users}
 			<div class="px-3 py-2">
 				<h2 class="mb-2 px-4 text-lg font-semibold tracking-tight">Community</h2>
 				<div class="space-y-1">
-					{#each members as listitem}
+					{#each users as listitem}
 						<a
 							href="/profile/{listitem.ERC20}/index.html"
 							type="button btn"
